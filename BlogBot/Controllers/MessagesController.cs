@@ -10,6 +10,8 @@ namespace BlogBot
     using System;
     using System.Workflow.ComponentModel.Design;
 
+    using BlogBot.Dialogs;
+
     [BotAuthentication]
     public class MessagesController : ApiController
     {
@@ -21,36 +23,8 @@ namespace BlogBot
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                //// The client is responsible for getting\setting state of the bot.
-                //StateClient stateClient = activity.GetStateClient();
-                //// Retrieve User Data based on ChannelId and UserId (unique combination)
-                //BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
-                //// Set a property in the retrieved state.
-                //userData.SetProperty<string>("sampleProperty", "sampleValue");
-                //// Request stateClient to save data.
-                //await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
-
-                // **Set State Data
-                // The client is responsible for getting\setting state of the bot.
-                StateClient stateClient = activity.GetStateClient();
-                // We will store an instance of this class in the state store.
-                CustomUserData customUserData = new CustomUserData("message");
-                // The eTag in BotData specifies that we want to update the latest instance of CustomUserData in the state store.
-                BotData botData = new BotData(eTag: "*");
-                // Set the property as usual.
-                botData.SetProperty("UserData", customUserData);
-                // Request the StateClient instance to save this state.
-                BotData response1 = await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, botData);
-
-                // **Get State Data
-                BotData fetchedStateData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
-                CustomUserData fetchedCustomUserData = fetchedStateData.GetProperty<CustomUserData>("UserData");
-          
-                ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                int length = (activity.Text ?? string.Empty).Length;
-
-                Activity replyActivity = activity.CreateReply($"Length of message is {length}");
-                await connector.Conversations.ReplyToActivityAsync(replyActivity);
+                // We will invoke the dialog here.
+                await Conversation.SendAsync(activity, () => new HelloDialog());
             }
             else
             {
