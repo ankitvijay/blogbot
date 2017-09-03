@@ -1,36 +1,35 @@
-﻿using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Connector;
-
-namespace BlogBot
+﻿namespace BlogBot
 {
-    using System;
-    using System.Workflow.ComponentModel.Design;
+    using System.Net;
+    using System.Net.Http;
+    using System.Threading.Tasks;
+    using System.Web.Http;
 
     using BlogBot.Dialogs;
+
+    using Microsoft.Bot.Builder.Dialogs;
+    using Microsoft.Bot.Connector;
 
     [BotAuthentication]
     public class MessagesController : ApiController
     {
         /// <summary>
-        /// POST: api/Messages
-        /// Receive a message from a user and reply to it
+        ///     POST: api/Messages
+        ///     Receive a message from a user and reply to it
         /// </summary>
-        public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
+        public async Task<HttpResponseMessage> Post([FromBody] Activity activity)
         {
             if (activity.Type == ActivityTypes.Message)
             {
                 // We will invoke the dialog here.
-                await Conversation.SendAsync(activity, () => new HelloDialog());
+                await Conversation.SendAsync(activity, () => BlogBotDialog.dialog);
             }
             else
             {
-                HandleSystemMessage(activity);
+                this.HandleSystemMessage(activity);
             }
-            var response = Request.CreateResponse(HttpStatusCode.OK);
+
+            var response = this.Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
 
@@ -66,11 +65,11 @@ namespace BlogBot
 
     public class CustomUserData
     {
-        public string Message { get; }
-
         public CustomUserData(string message)
         {
             this.Message = message;
         }
+
+        public string Message { get; }
     }
 }
