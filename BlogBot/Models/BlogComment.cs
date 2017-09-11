@@ -6,20 +6,14 @@
 
     public enum BlogAspectOptions
     {
-        //[Terms("a", "A")]
         Article,
 
-        //[Terms("p", "P")]
-        Profile,
-
-        //[Terms("s", "S")]
-        Subscribe
+        Profile
     }
 
     [Serializable]
     public class BlogComment
     {
-        //[Prompt("What do you like to comment on?")]
         public BlogAspectOptions BlogAspect;
 
         [Prompt("What message would you like to post?")]
