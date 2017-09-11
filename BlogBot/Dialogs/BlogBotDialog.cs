@@ -17,17 +17,30 @@
             .Switch(
                 new RegexCase<IDialog<string>>(
                     new Regex("^hi", RegexOptions.IgnoreCase),
-                    (context, text) => new HelloDialog().ContinueWith(ContinueConversation)),
+                    (context, text) => new HelloDialog().ContinueWith(ContinueHelloConversation)),
                 new DefaultCase<string, IDialog<string>>(
-                    (context, text) => FormDialog.FromForm(BlogSearch.BuildForm, FormOptions.PromptInStart)
-                        .ContinueWith(ContinueConversation))).Unwrap().PostToUser();
+                    (context, text) => (IDialog<string>)FormDialog.FromForm(BlogComment.BuildForm, FormOptions.PromptInStart)
+                        .ContinueWith(ContinueBlogConversation))).Unwrap().PostToUser();
 
-        // This method fires off after either of the dialogs to conclude the conversation.
-        private static async Task<IDialog<string>> ContinueConversation(IBotContext context, IAwaitable<object> item)
+        // This method fires off after the Blog comment dialog to conclude the conversation.
+        private static async Task<IDialog<string>> ContinueBlogConversation(IBotContext context, IAwaitable<BlogComment> item)
+        {
+            var blogComment = await item;
+
+            return Chain.ContinueWith(new ForkedConversationDialog(), async (c, r) =>
+                      {
+                          await context.PostAsync("Carrying out conversation based on user input!");
+                          var result = await r;
+                          return Chain.Return("End of forked conversation");
+                      });
+
+            return Chain.Return($"Your message on {blogComment.BlogAspect} has been sent to Rahul");
+        }
+
+        // This method fires off after the Hello dialog to conclude the conversation.
+        private static async Task<IDialog<string>> ContinueHelloConversation(IBotContext context, IAwaitable<object> item)
         {
             var message = await item;
-            // use the message object to send an email to me.
-
             context.UserData.TryGetValue("userName", out string name);
             return Chain.Return($"Thank you for using the Blog Bot: {name}");
         }
