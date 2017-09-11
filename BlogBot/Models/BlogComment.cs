@@ -6,15 +6,14 @@
 
     public enum BlogAspectOptions
     {
-        Article,
-
-        Profile
+        Profile,
+        Article
     }
 
     [Serializable]
     public class BlogComment
     {
-        public BlogAspectOptions BlogAspect;
+        public BlogAspectOptions? BlogAspect;
 
         [Prompt("What message would you like to post?")]
         public string MessageForRahul;
