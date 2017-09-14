@@ -25,16 +25,14 @@
         // This method fires off after the Blog comment dialog to conclude the conversation.
         private static async Task<IDialog<string>> ContinueBlogConversation(IBotContext context, IAwaitable<BlogComment> item)
         {
+            // This will contain a BlogComment object with entities populated.
             var blogComment = await item;
 
             return Chain.ContinueWith(new ForkedConversationDialog(), async (c, r) =>
                       {
-                          await context.PostAsync("Carrying out conversation based on user input!");
-                          var result = await r;
-                          return Chain.Return("End of forked conversation");
+                          await c.PostAsync("Carrying out conversation based on user input!");
+                          return Chain.Return($"You entered {await r}.End of forked conversation");
                       });
-
-            return Chain.Return($"Your message on {blogComment.BlogAspect} has been sent to Rahul");
         }
 
         // This method fires off after the Hello dialog to conclude the conversation.
