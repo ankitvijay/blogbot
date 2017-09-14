@@ -28,7 +28,8 @@
             // This will contain a BlogComment object with entities populated.
             var blogComment = await item;
 
-            return Chain.ContinueWith(new ForkedConversationDialog(), async (c, r) =>
+            return new ForkedConversationDialog().ContinueWith(
+                async (c, r) =>
                       {
                           await c.PostAsync("Carrying out conversation based on user input!");
                           return Chain.Return($"You entered {await r}.End of forked conversation");
