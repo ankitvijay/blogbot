@@ -6,6 +6,7 @@
     using System.Web.Http;
 
     using BlogBot.Dialogs;
+    using BlogBot.Models;
 
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Connector;
@@ -22,7 +23,7 @@
             if (activity.Type == ActivityTypes.Message)
             {
                 // We will invoke the dialog here.
-                await Conversation.SendAsync(activity, () => BlogBotDialog.dialog);
+                await Conversation.SendAsync(activity, this.BlogLuisDialog);
             }
             else
             {
@@ -31,6 +32,11 @@
 
             var response = this.Request.CreateResponse(HttpStatusCode.OK);
             return response;
+        }
+
+        private IDialog<BlogComment> BlogLuisDialog()
+        {
+            return Chain.From(() => new LUISTestDialog());
         }
 
         private Activity HandleSystemMessage(Activity message)
