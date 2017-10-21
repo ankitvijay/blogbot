@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace BlogBot.Dialogs
+﻿namespace BlogBot.Dialogs
 {
+    using System;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using BlogBot.Models;
@@ -18,38 +15,6 @@ namespace BlogBot.Dialogs
     [LuisModel("7be6cff2-4439-4a81-83b6-5c60147fafdc", "ffa1ff3be1d4490b9df4c62299a81715")]
     public class LUISTestDialog : LuisDialog<BlogComment>
     {
-        [LuisIntent("")]
-        public async Task NoIntentFound(IDialogContext context, LuisResult result)
-        {
-            await context.PostAsync("LUIS could not find a matching intent.");
-            context.Wait(this.MessageReceived);
-        }
-
-        [LuisIntent("Hello Intent")]
-        public async Task HelloIntent(IDialogContext context, LuisResult result)
-        {
-            context.Call(new HelloDialog(), Callback);
-            async Task Callback(IDialogContext dialogContext, IAwaitable<object> dialogResult)
-            {
-                dialogContext.Wait(this.MessageReceived);
-            }
-        }
-
-        public async Task BlogAspects(IDialogContext context, LuisResult result)
-        {
-            var newForm = new FormDialog<BlogComment>(new BlogComment(), this.AcceptComment, FormOptions.PromptInStart);
-            context.Call(newForm, Continue);
-            async Task Continue(IDialogContext dialogContext, IAwaitable<object> dialogResult)
-            {
-                dialogContext.Wait(this.MessageReceived);
-            }
-        }
-
-        private IForm<BlogComment> AcceptComment()
-        {
-            throw new NotImplementedException();
-        }
-
         [LuisIntent("Blog Aspects")]
         public async Task CanCommentOn(IDialogContext context, LuisResult result)
         {
@@ -58,13 +23,39 @@ namespace BlogBot.Dialogs
                 var name = entity.Entity.ToLowerInvariant();
                 if (name == "blog" || name == "profile")
                 {
-                    await context.PostAsync("Yes you can comment on name");
-                    context.Wait(this.MessageReceived);
+                    await context.PostAsync($"Yes you can comment on {name}. Launching the form now...");
+                    var blogCommentForm = FormDialog.FromForm(BlogComment.BuildForm, FormOptions.PromptInStart);
+                    context.Call(blogCommentForm, Continue);
+
+                    async Task Continue(IDialogContext dialogContext, IAwaitable<BlogComment> dialogResult)
+                    {
+                        await dialogContext.PostAsync($"Thank you for submitting your request.");
+                        dialogContext.Wait(this.MessageReceived);
+                    }
+
                     return;
                 }
             }
 
             await context.PostAsync("Not an available option");
+            context.Wait(this.MessageReceived);
+        }
+
+        [LuisIntent("Hello Intent")]
+        public async Task HelloIntent(IDialogContext context, LuisResult result)
+        {
+            context.Call(new HelloDialog(), Callback);
+
+            async Task Callback(IDialogContext dialogContext, IAwaitable<object> dialogResult)
+            {
+                dialogContext.Wait(this.MessageReceived);
+            }
+        }
+
+        [LuisIntent("")]
+        public async Task NoIntentFound(IDialogContext context, LuisResult result)
+        {
+            await context.PostAsync("LUIS could not find a matching intent.");
             context.Wait(this.MessageReceived);
         }
     }
