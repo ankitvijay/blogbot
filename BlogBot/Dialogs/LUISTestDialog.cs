@@ -48,6 +48,7 @@
 
             async Task Callback(IDialogContext dialogContext, IAwaitable<object> dialogResult)
             {
+                await dialogContext.PostAsync("Hello dialog concludes.");
                 dialogContext.Wait(this.MessageReceived);
             }
         }

@@ -2,6 +2,7 @@
 {
     using System.Net;
     using System.Net.Http;
+    using System.Runtime.Remoting.Messaging;
     using System.Threading.Tasks;
     using System.Web.Http;
 
@@ -23,7 +24,7 @@
             if (activity.Type == ActivityTypes.Message)
             {
                 // We will invoke the dialog here.
-                await Conversation.SendAsync(activity, this.BlogLuisDialog);
+                await Conversation.SendAsync(activity, () => { return Chain.From(() => new LUISTestDialog()); });
             }
             else
             {
@@ -32,11 +33,6 @@
 
             var response = this.Request.CreateResponse(HttpStatusCode.OK);
             return response;
-        }
-
-        private IDialog<BlogComment> BlogLuisDialog()
-        {
-            return Chain.From(() => new LUISTestDialog());
         }
 
         private Activity HandleSystemMessage(Activity message)
