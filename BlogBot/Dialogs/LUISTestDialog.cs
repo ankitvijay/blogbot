@@ -12,7 +12,7 @@
     using Microsoft.Bot.Builder.Luis.Models;
 
     [Serializable]
-    [LuisModel("7be6cff2-4439-4a81-83b6-5c60147fafdc", "ffa1ff3be1d4490b9df4c62299a81715")]
+    [LuisModel("", "")]
     public class LUISTestDialog : LuisDialog<BlogComment>
     {
         [LuisIntent("Blog Aspects")]
